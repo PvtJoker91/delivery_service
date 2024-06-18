@@ -7,6 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.111.0"}
+sqlalchemy = "^2.0.30"
+aiomysql = "^0.2.0"
 
 
 [build-system]
