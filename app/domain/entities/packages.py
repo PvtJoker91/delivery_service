@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.domain.entities.base import BaseEntity
 from app.domain.entities.users import User
@@ -16,7 +16,7 @@ class Package(BaseEntity):
     weight: PackageWeight
     price: PackagePrice
     type_oid: str
-    type: PackageType
-    user_oid: str
-    owner: User
-    delivery_cost: str | float
+    owner_oid: str
+    delivery_cost: str | float = field(default='Не рассчитано')
+    type: PackageType | None = None
+    owner: User | None = None
