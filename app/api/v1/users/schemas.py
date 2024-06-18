@@ -7,14 +7,14 @@ from app.domain.values.users import UserName
 
 
 class UserSchema(BaseModel):
-    oid: str
+    id: int
     first_name: str
     last_name: str
 
     @staticmethod
     def from_entity(entity: UserEntity) -> 'UserSchema':
         return UserSchema(
-            oid=entity.oid,
+            id=entity.id,
             first_name=entity.first_name,
             last_name=entity.last_name,
         )

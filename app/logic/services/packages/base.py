@@ -14,7 +14,7 @@ class BasePackageService(ABC):
         ...
 
     @abstractmethod
-    async def get_package(self, package_oid: str):
+    async def get_package(self, package_id: int):
         ...
 
     @abstractmethod

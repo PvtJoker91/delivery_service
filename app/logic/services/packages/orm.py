@@ -9,7 +9,7 @@ class ORMPackageService(BasePackageService):
     async def get_package_list(self, pagination, filters):
         ...
 
-    async def get_package(self, package_oid: str):
+    async def get_package(self, package_id: int):
         ...
 
     async def get_package_types_list(self):

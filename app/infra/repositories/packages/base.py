@@ -8,7 +8,7 @@ class BasePackageRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_package(self, oid: str):
+    async def get_package(self, package_id: int):
         ...
 
     @abstractmethod

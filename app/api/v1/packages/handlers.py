@@ -55,16 +55,16 @@ async def my_packages(
 
 
 @router.get(
-    '/{package_oid}',
+    '/{package_id}',
     response_model=PackageDetailSchema,
     status_code=status.HTTP_200_OK
 )
 async def package_detail(
-        package_oid: str
+        package_id: str
 ) -> PackageDetailSchema:
     use_case: GetPackageDetailUseCase = container.resolve(GetPackageDetailUseCase)
     try:
-        package = await use_case.execute(package_oid=package_oid)
+        package = await use_case.execute(package_id=package_id)
         return PackageDetailSchema.from_entity(package)
     except ApplicationException as exception:
         raise HTTPException(

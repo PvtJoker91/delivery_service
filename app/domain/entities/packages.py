@@ -15,8 +15,8 @@ class Package(BaseEntity):
     title: Title
     weight: PackageWeight
     price: PackagePrice
-    type_oid: str
-    owner_oid: str
-    delivery_cost: str | float = field(default='Не рассчитано')
+    type_id: str
+    owner_id: str
+    delivery_cost: float | None = None
     type: PackageType | None = None
     owner: User | None = None
