@@ -25,8 +25,8 @@ class RegisterPackageSchema(BaseModel):
     title: str
     weight: float
     price: float
-    type_id: str
-    owner_id: str
+    type_id: int
+    owner_id: int
 
     def to_entity(self) -> PackageEntity:
         return PackageEntity(
@@ -50,7 +50,7 @@ class RegisterPackageResponseSchema(BaseModel):
 class PackageSchema(BaseModel):
     id: int
     title: str
-    type_id: str
+    type_id: int
 
     @classmethod
     def from_entity(cls, package: PackageEntity) -> 'PackageSchema':
@@ -62,12 +62,23 @@ class PackageDetailSchema(BaseModel):
     title: str
     weight: float
     price: float
-    type_id: str
-    owner_id: str
-    delivery_cost: str | float
+    type_id: int
+    owner_id: int
+    delivery_cost: str | float | None
     owner: UserSchema
     type: PackageTypeSchema
 
     @classmethod
     def from_entity(cls, package: PackageEntity) -> 'PackageDetailSchema':
-        return cls(title=package.title.as_generic_type(), id=package.id, type_id=package.type_id)
+        return cls(
+            id=package.id,
+            title=package.title.as_generic_type(),
+            weight=package.weight.as_generic_type(),
+            price=package.price.as_generic_type(),
+            delivery_cost=package.delivery_cost,
+            owner_id=package.owner_id,
+            type_id=package.type_id,
+            owner=UserSchema.from_entity(package.owner),
+            type=PackageTypeSchema.from_entity(package.type),
+        )
+

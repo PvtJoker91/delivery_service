@@ -15,8 +15,14 @@ class Package(BaseEntity):
     title: Title
     weight: PackageWeight
     price: PackagePrice
-    type_id: str
-    owner_id: str
+    type_id: int
+    owner_id: int
     delivery_cost: float | None = None
     type: PackageType | None = None
     owner: User | None = None
+
+
+@dataclass
+class PackageFilter:
+    type_id: int
+    is_calculated: bool
