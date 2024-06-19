@@ -20,10 +20,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 
-from app.infra.models.base import TimedBaseModel
-from app.infra.models.packages import Package # noqa
-from app.infra.models.packages import PackageType # noqa
-from app.infra.models.users import User # noqa
+from app.infra.dtos.base import TimedBaseModel
+from app.infra.dtos.packages import Package # noqa
+from app.infra.dtos.packages import PackageType # noqa
+from app.infra.dtos.users import User # noqa
 from app.settings.config import settings
 
 target_metadata = TimedBaseModel.metadata

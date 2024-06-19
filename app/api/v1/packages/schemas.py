@@ -14,6 +14,13 @@ class PackageTypeSchema(BaseModel):
         return cls(name=p_type.name.as_generic_type(), id=p_type.id)
 
 
+class PackageTypeCreateSchema(BaseModel):
+    name: str
+
+    def to_entity(self) -> PackageTypeEntity:
+        return PackageTypeEntity(name=Title(self.name))
+
+
 class RegisterPackageSchema(BaseModel):
     title: str
     weight: float
@@ -21,7 +28,7 @@ class RegisterPackageSchema(BaseModel):
     type_id: str
     owner_id: str
 
-    def to_entity(self):
+    def to_entity(self) -> PackageEntity:
         return PackageEntity(
             title=Title(self.title),
             weight=PackageWeight(self.weight),

@@ -18,6 +18,7 @@ class DbSettings(CustomSettings):
     mysql_password: str
     mysql_host: str
     mysql_port: int
+    echo: bool = True
 
     @property
     def db_url(self):

@@ -15,8 +15,8 @@ class UserSchema(BaseModel):
     def from_entity(entity: UserEntity) -> 'UserSchema':
         return UserSchema(
             id=entity.id,
-            first_name=entity.first_name,
-            last_name=entity.last_name,
+            first_name=entity.first_name.as_generic_type(),
+            last_name=entity.last_name.as_generic_type(),
         )
 
 

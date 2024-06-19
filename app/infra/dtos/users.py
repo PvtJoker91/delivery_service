@@ -5,10 +5,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.entities.users import User as UserEntity
 from app.domain.values.users import UserName
-from app.infra.models.base import TimedBaseModel
+from app.infra.dtos.base import TimedBaseModel
 
 if TYPE_CHECKING:
-    from app.infra.models.packages import Package
+    from app.infra.dtos.packages import Package
 
 
 class User(TimedBaseModel):

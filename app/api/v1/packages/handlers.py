@@ -1,13 +1,17 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi.params import Depends
+from punq import Container
 
 from app.api.filters import PaginationIn
 from app.api.schemas import ListPaginatedResponse, ApiResponse
 from app.api.v1.packages.filters import PackageFilter
 from app.api.v1.packages.schemas import RegisterPackageSchema, RegisterPackageResponseSchema, PackageSchema, \
-    PackageDetailSchema, PackageTypeSchema
+    PackageDetailSchema, PackageTypeSchema, PackageTypeCreateSchema
+from app.di import get_container
 from app.domain.exceptions.base import ApplicationException
+from app.logic.services.packages.base import BasePackageService
 
-router = APIRouter(prefix="/packages", tags=["Tasks"])
+router = APIRouter(prefix="/packages", tags=["Packages"])
 
 
 @router.post(
@@ -17,10 +21,11 @@ router = APIRouter(prefix="/packages", tags=["Tasks"])
 )
 async def register_package(
         package_in: RegisterPackageSchema,
+        container: Container = Depends(get_container),
 ) -> RegisterPackageResponseSchema:
-    use_case: RegisterPackageUseCase = container.resolve(RegisterPackageUseCase)
+    service: BasePackageService = container.resolve(BasePackageService)
     try:
-        package = await use_case.execute(package_in=package_in.to_entity())
+        package = await service.register_package(package=package_in.to_entity())
         return RegisterPackageResponseSchema.from_entity(package)
     except ApplicationException as exception:
         raise HTTPException(
@@ -36,11 +41,12 @@ async def register_package(
 )
 async def my_packages(
         pagination_in: PaginationIn,
-        filters: PackageFilter
+        filters: PackageFilter,
+        container: Container = Depends(get_container),
 ) -> ApiResponse[ListPaginatedResponse[PackageSchema]]:
-    use_case: GetMyPackagesUseCase = container.resolve(GetMyPackagesUseCase)
+    service: BasePackageService = container.resolve(BasePackageService)
     try:
-        packages = await use_case.execute(pagination_in=pagination_in, filters=filters)
+        packages = await service.get_package_list(pagination=pagination_in, filters=filters)
         return ApiResponse(
             data=ListPaginatedResponse(
                 items=[PackageSchema.from_entity(package) for package in packages],
@@ -60,11 +66,12 @@ async def my_packages(
     status_code=status.HTTP_200_OK
 )
 async def package_detail(
-        package_id: str
+        package_id: int,
+        container: Container = Depends(get_container),
 ) -> PackageDetailSchema:
-    use_case: GetPackageDetailUseCase = container.resolve(GetPackageDetailUseCase)
+    service: BasePackageService = container.resolve(BasePackageService)
     try:
-        package = await use_case.execute(package_id=package_id)
+        package = await service.get_package(package_id=package_id)
         return PackageDetailSchema.from_entity(package)
     except ApplicationException as exception:
         raise HTTPException(
@@ -73,15 +80,37 @@ async def package_detail(
         )
 
 
+@router.post(
+    '/add_type',
+    response_model=PackageTypeSchema,
+    status_code=status.HTTP_201_CREATED
+)
+async def add_package_type(
+        p_type: PackageTypeCreateSchema,
+        container: Container = Depends(get_container),
+) -> PackageTypeSchema:
+    service: BasePackageService = container.resolve(BasePackageService)
+    try:
+        p_type = await service.add_package_type(p_type.to_entity())
+        return PackageTypeSchema.from_entity(p_type)
+    except ApplicationException as exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exception.message,
+        )
+
+
 @router.get(
-    '/types',
+    '/type_list',
     response_model=PackageTypeSchema,
     status_code=status.HTTP_200_OK
 )
-async def package_types() -> list[PackageTypeSchema]:
-    use_case: GetPackageTypesUseCase = container.resolve(GetPackageTypesUseCase)
+async def package_types(
+        container: Container = Depends(get_container),
+) -> list[PackageTypeSchema]:
+    service: BasePackageService = container.resolve(BasePackageService)
     try:
-        p_types = await use_case.execute()
+        p_types = await service.get_package_types_list()
         return [PackageTypeSchema.from_entity(p_type) for p_type in p_types]
     except ApplicationException as exception:
         raise HTTPException(

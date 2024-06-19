@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.domain.entities.packages import Package as PackageEntity
+from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
 
 
 class BasePackageService(ABC):
@@ -19,4 +19,8 @@ class BasePackageService(ABC):
 
     @abstractmethod
     async def get_package_types_list(self):
+        ...
+
+    @abstractmethod
+    async def add_package_type(self, p_type: PackageTypeEntity):
         ...

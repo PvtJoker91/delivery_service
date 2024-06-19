@@ -15,6 +15,7 @@ pydantic-settings = "^2.3.3"
 aiomysql = "^0.2.0"
 alembic = "^1.13.1"
 cryptography = "^42.0.8"
+fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
 
 
 [build-system]

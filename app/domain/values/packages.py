@@ -15,8 +15,8 @@ class PackagePrice(BaseValueObject[float]):
         if not self.value or self.value < 0:
             raise WrongPriceValueException()
 
-    def as_generic_type(self) -> str:
-        return str(self.value)
+    def as_generic_type(self) -> float:
+        return float(self.value)
 
 
 @dataclass(frozen=True)
@@ -25,8 +25,8 @@ class PackageWeight(BaseValueObject[float]):
         if not self.value or self.value < 0:
             raise WrongWeightValueException()
 
-    def as_generic_type(self) -> str:
-        return str(self.value)
+    def as_generic_type(self) -> float:
+        return float(self.value)
 
 
 @dataclass(frozen=True)
