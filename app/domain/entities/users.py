@@ -1,13 +1,13 @@
 from dataclasses import dataclass, asdict
 
 from app.domain.entities.base import BaseEntity
-from app.domain.values.users import UserName
+from app.domain.values.users import UserName, Password
 
 
 @dataclass
 class User(BaseEntity):
-    first_name: UserName
-    last_name: UserName
+    username: UserName
+    password: Password
 
     def to_dict(self) -> dict:
         return asdict(self)
