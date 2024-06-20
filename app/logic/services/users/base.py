@@ -13,3 +13,11 @@ class BaseUserService(ABC):
     @abstractmethod
     async def create_user(self, user_in: UserEntity) -> UserEntity:
         ...
+
+    @abstractmethod
+    async def get_user_by_username(self, username: str) -> UserEntity:
+        ...
+
+    @abstractmethod
+    async def authorise_user(self, username: str, password: str):
+        ...

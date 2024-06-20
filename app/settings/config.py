@@ -22,8 +22,9 @@ class DbSettings(CustomSettings):
 
     @property
     def db_url(self):
-        return (f"mysql+aiomysql://{self.mysql_user}:{self.mysql_password}@"
-                f"{self.mysql_host}:{self.mysql_port}/{self.mysql_database}")
+        url = (f"mysql+aiomysql://{self.mysql_user}:{self.mysql_password}@"
+               f"{self.mysql_host}:{self.mysql_port}/{self.mysql_database}")
+        return url
 
 
 class RedisSettings(CustomSettings):

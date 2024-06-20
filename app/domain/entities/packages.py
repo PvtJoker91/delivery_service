@@ -25,4 +25,5 @@ class Package(BaseEntity):
 @dataclass
 class PackageFilter:
     type_id: int
+    user_id: int
     is_calculated: bool

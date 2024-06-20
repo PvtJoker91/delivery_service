@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from app.api.v1.users.schemas import UserSchema
+from app.domain.constants import NOT_CALCULATED_COST_FIELD
 from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
 from app.domain.values.packages import Title, PackageWeight, PackagePrice
 
@@ -64,7 +65,7 @@ class PackageDetailSchema(BaseModel):
     price: float
     type_id: int
     owner_id: int
-    delivery_cost: str | float | None
+    delivery_cost: str | float
     owner: UserSchema
     type: PackageTypeSchema
 
@@ -75,7 +76,7 @@ class PackageDetailSchema(BaseModel):
             title=package.title.as_generic_type(),
             weight=package.weight.as_generic_type(),
             price=package.price.as_generic_type(),
-            delivery_cost=package.delivery_cost,
+            delivery_cost=package.delivery_cost if package.delivery_cost else NOT_CALCULATED_COST_FIELD,
             owner_id=package.owner_id,
             type_id=package.type_id,
             owner=UserSchema.from_entity(package.owner),

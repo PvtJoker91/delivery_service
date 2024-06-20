@@ -5,16 +5,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
 from app.domain.values.packages import Title, PackageWeight, PackagePrice
-from app.infra.dtos.base import TimedBaseModel
+from app.infra.db.base import TimedBaseModel
 
 if TYPE_CHECKING:
-    from app.infra.dtos.users import User
+    from app.infra.db.users import User
 
 
 class PackageType(TimedBaseModel):
     __tablename__ = "package_types"
 
-    name: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(100), unique=True)
     packages: Mapped[list['Package']] = relationship(back_populates="type")
 
     def __str__(self):

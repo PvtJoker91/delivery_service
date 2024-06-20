@@ -8,8 +8,6 @@ services:
       - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - dev
 
 
   celery-worker:
@@ -25,9 +23,27 @@ services:
       - redis
     volumes:
       - ..:/app/
-    command: celery -A src.celery.main.celery_app worker --loglevel=info
-    networks:
-      - dev
+    command: celery -A app.infra.workers.celery.main.celery_app worker --loglevel=info
+
+
+  celery-beat:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: celery-beat
+    env_file:
+      - ../.env
+    environment:
+      - CELERY_BROKER_URL=${BROKER_URL}
+    depends_on:
+      - redis
+      - celery-worker
+    volumes:
+      - ..:/app/
+      - ../logs:/logs
+    command: celery -A app.infra.workers.celery.main.celery_app beat --loglevel=info --logfile=/logs/celery_beat.log
+
+
 
   flower:
     image: "mher/flower:latest"
@@ -41,12 +57,10 @@ services:
     environment:
       - CELERY_BROKER_URL=${BROKER_URL}
       - FLOWER_PORT=5555
-    networks:
-      - dev
+
 
 
 volumes:
   redis_data:
-
-networks:
-  dev:
+  celery_logs:
+    driver: local

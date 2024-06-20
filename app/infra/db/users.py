@@ -5,17 +5,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.entities.users import User as UserEntity
 from app.domain.values.users import UserName, Password
-from app.infra.dtos.base import TimedBaseModel
+from app.infra.db.base import TimedBaseModel
 
 if TYPE_CHECKING:
-    from app.infra.dtos.packages import Package
+    from app.infra.db.packages import Package
 
 
 class User(TimedBaseModel):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(String(50), unique=True)
-    password: Mapped[bytes] = mapped_column(String(50))
+    password: Mapped[bytes]
     packages: Mapped[list['Package']] = relationship(back_populates="owner")
 
     def __str__(self):

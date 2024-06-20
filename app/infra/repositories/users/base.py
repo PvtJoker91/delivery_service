@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from app.domain.entities.users import User as UserEntity
+from app.infra.db.users import User
 
 
 @dataclass
 class BaseUserRepository(ABC):
     @abstractmethod
-    async def create_user(self, user: UserEntity) -> UserEntity:
+    async def create_user(self, user: User) -> User:
+        ...
+
+    @abstractmethod
+    async def get_user_by_username(self, username: str) -> User:
         ...

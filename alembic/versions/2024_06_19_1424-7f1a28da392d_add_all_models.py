@@ -1,4 +1,4 @@
-"""Add all dtos
+"""Add all db
 
 Revision ID: 7f1a28da392d
 Revises: 

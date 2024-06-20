@@ -24,6 +24,10 @@ storages-logs:
 
 .PHONY: app
 app:
+	${DC} -f ${APP_FILE} ${ENV} up --build -d
+
+.PHONY: all
+all:
 	${DC} -f ${APP_FILE} ${ENV} -f ${STORAGES_FILE} ${ENV} -f ${WORKERS_FILE} ${ENV} up --build -d
 
 .PHONY: workers
@@ -41,7 +45,7 @@ worker-logs:
 
 .PHONY: app-down
 app-down:
-	${DC} -f ${APP_FILE} -f ${STORAGES_FILE} -f ${WORKERS_FILE} -f ${MONITORING_FILE} down --remove-orphans
+	${DC} -f ${APP_FILE} -f ${STORAGES_FILE} -f ${WORKERS_FILE} down --remove-orphans
 
 .PHONY: db-logs
 db-logs:

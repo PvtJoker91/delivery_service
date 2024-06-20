@@ -19,8 +19,5 @@ class Password(BaseValueObject[str | bytes]):
         if not self.value:
             raise EmptyUserNameException()
 
-        if len(self.value) > 50:
-            raise UserNameTooLongException(self.value)
-
     def as_generic_type(self):
-        return str(self.value)
+        return self.value
