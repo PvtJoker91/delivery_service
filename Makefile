@@ -43,8 +43,8 @@ app-logs:
 worker-logs:
 	${LOGS} ${WORKER_CONTAINER} -f
 
-.PHONY: app-down
-app-down:
+.PHONY: all-down
+all-down:
 	${DC} -f ${APP_FILE} -f ${STORAGES_FILE} -f ${WORKERS_FILE} down --remove-orphans
 
 .PHONY: db-logs
@@ -59,3 +59,7 @@ clear:
 .PHONY: migrate
 migrate:
 	${EXEC} ${APP_CONTAINER} alembic upgrade head
+
+.PHONY: tests
+tests:
+	${EXEC} ${APP_CONTAINER} pytest

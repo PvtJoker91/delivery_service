@@ -27,7 +27,6 @@ class RegisterPackageSchema(BaseModel):
     weight: float
     price: float
     type_id: int
-    owner_id: int
 
     def to_entity(self) -> PackageEntity:
         return PackageEntity(
@@ -35,7 +34,6 @@ class RegisterPackageSchema(BaseModel):
             weight=PackageWeight(self.weight),
             price=PackagePrice(self.price),
             type_id=self.type_id,
-            owner_id=self.owner_id,
         )
 
 

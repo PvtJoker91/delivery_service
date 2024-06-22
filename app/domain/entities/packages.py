@@ -16,7 +16,7 @@ class Package(BaseEntity):
     weight: PackageWeight
     price: PackagePrice
     type_id: int
-    owner_id: int
+    owner_id: int | None = None
     delivery_cost: float | None = None
     type: PackageType | None = None
     owner: User | None = None

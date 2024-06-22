@@ -34,10 +34,11 @@ async def register_package(
         user: UserSchema = Depends(get_auth_user),
         container: Container = Depends(get_container),
 ) -> RegisterPackageResponseSchema:
-    package_in.owner_id = user.id
     service: BasePackageService = container.resolve(BasePackageService)
     try:
-        package = await service.register_package(package=package_in.to_entity())
+        entity = package_in.to_entity()
+        entity.owner_id = user.id
+        package = await service.register_package(package=entity)
     except ApplicationException as exception:
         logger: Logger = container.resolve(Logger)
         logger.error(msg=exception.message)
