@@ -1,11 +1,15 @@
 import punq
 from celery import Celery
+from motor.motor_asyncio import AsyncIOMotorClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from functools import lru_cache
 from logging import Logger
 
+from app.infra.db.mongo_client import init_mongodb_client
 from app.infra.db.session import init_async_session
+from app.infra.repositories.calculation.base import BaseCalculationLogRepository
+from app.infra.repositories.calculation.mongo import MongoCalculationLogRepository
 from app.infra.repositories.packages.alchemy import SQLAlchemyPackageRepository
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.users.alchemy import SQLAlchemyUserRepository
@@ -35,12 +39,16 @@ def _initialize_container() -> punq.Container:
     # init worker
     container.register(Celery, factory=init_worker)
 
-    # init repos
+    # init mongo
+    container.register(AsyncIOMotorClient, factory=init_mongodb_client)
 
+    # init repos
     container.register(BaseUserRepository)
     container.register(SQLAlchemyUserRepository)
     container.register(BasePackageRepository)
     container.register(SQLAlchemyPackageRepository)
+    container.register(BaseCalculationLogRepository)
+    container.register(MongoCalculationLogRepository)
 
     # initialize services
     def init_sqlalchemy_user_service():
@@ -49,7 +57,8 @@ def _initialize_container() -> punq.Container:
 
     def init_sqlalchemy_package_service():
         repository: BasePackageRepository = container.resolve(SQLAlchemyPackageRepository)
-        return ORMPackageService(repository=repository)
+        logs_repository: BaseCalculationLogRepository = container.resolve(MongoCalculationLogRepository)
+        return ORMPackageService(repository=repository, logs_repository=logs_repository)
 
     container.register(BaseUserService, factory=init_sqlalchemy_user_service)
     container.register(BasePackageService, factory=init_sqlalchemy_package_service)

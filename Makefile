@@ -8,6 +8,17 @@ STORAGES_FILE = docker_compose/storages.yaml
 DB_CONTAINER = database
 WORKERS_FILE = docker_compose/workers.yaml
 WORKER_CONTAINER = celery-worker
+MONGO = docker_compose/mongo.yaml
+MONGO_EXPRESS = docker_compose/mongo-express.yaml
+
+
+.PHONY: mongo
+mongo:
+	${DC} -f ${MONGO} ${ENV} up -d --build
+
+.PHONY: ui
+ui:
+	${DC} -f ${MONGO_EXPRESS} ${ENV} up --build -d
 
 .PHONY: storages
 storages:
@@ -43,8 +54,8 @@ app-logs:
 worker-logs:
 	${LOGS} ${WORKER_CONTAINER} -f
 
-.PHONY: all-down
-all-down:
+.PHONY: down
+down:
 	${DC} -f ${APP_FILE} -f ${STORAGES_FILE} -f ${WORKERS_FILE} down --remove-orphans
 
 .PHONY: db-logs

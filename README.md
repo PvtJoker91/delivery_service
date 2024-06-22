@@ -29,7 +29,7 @@ Project based on FastAPI, SQLAlchemy, MySQL, Docker
 
 * `make all` - up application and database/infrastructure
 * `make app-logs` - follow the logs in app container
-* `make all-down` - down application and all infrastructure
+* `make down` - down application and all infrastructure
 * `make storages` - up only storages
 * `make workers` - up redis, celery
 

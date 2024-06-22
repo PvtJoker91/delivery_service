@@ -1,4 +1,6 @@
 from dataclasses import dataclass, field
+from datetime import date, datetime
+from uuid import uuid4
 
 from app.domain.entities.base import BaseEntity
 from app.domain.entities.users import User
@@ -27,3 +29,17 @@ class PackageFilter:
     type_id: int
     user_id: int
     is_calculated: bool
+
+
+@dataclass
+class PackageCalculationLog:
+    oid: str = field(
+        default_factory=lambda: str(uuid4),
+        kw_only=True
+    )
+    type_id: int
+    value: float
+    date: date = field(
+        default_factory=datetime.today,
+        kw_only=True
+    )

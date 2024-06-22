@@ -1,8 +1,11 @@
+import datetime
 from dataclasses import dataclass
 from typing import Iterable
 
-from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
+from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity, \
+    PackageCalculationLog
 from app.infra.cache.redis import RedisCacheDB
+from app.infra.repositories.calculation.base import BaseCalculationLogRepository
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.packages import converters
 from app.logic.services.packages.base import BasePackageService
@@ -12,6 +15,7 @@ from app.logic.utils import calculate_cost, get_rub_exchange_rates
 @dataclass
 class ORMPackageService(BasePackageService):
     repository: BasePackageRepository
+    logs_repository: BaseCalculationLogRepository
 
     async def register_package(self, package: PackageEntity) -> PackageEntity:
         """
@@ -37,6 +41,8 @@ class ORMPackageService(BasePackageService):
         for package in not_calculated:
             delivery_cost = calculate_cost(package.price, package.weight, dollar_rate)
             package.delivery_cost = delivery_cost
+            log = PackageCalculationLog(type_id=package.type_id, value=delivery_cost)
+            await self.logs_repository.add_calculation_log(log)  # Добавляем лог в Mongo
         await self.repository.update_package_list_delivery_cost(not_calculated)
         return len(list(not_calculated))
 

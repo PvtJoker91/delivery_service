@@ -27,6 +27,11 @@ class DbSettings(CustomSettings):
         return url
 
 
+class MongoSettings(CustomSettings):
+    mongodb_connection_uri: str
+    mongodb_calculation_log_database: str
+
+
 class RedisSettings(CustomSettings):
     redis_host: str
     redis_port: int
@@ -39,8 +44,8 @@ class RedisSettings(CustomSettings):
 
 
 class Settings(CustomSettings):
-    app_url: str
     db: DbSettings = DbSettings()
+    mongo: MongoSettings = MongoSettings()
     redis: RedisSettings = RedisSettings()
 
 
