@@ -1,4 +1,5 @@
-from app.domain.exceptions.users import EmptyUserNameException, UserNameTooLongException
+from app.domain.exceptions.users import EmptyUserNameException, UserNameTooLongException, PasswordToShortException, \
+    EmptyPasswordNameException
 from app.domain.values.base import BaseValueObject
 
 
@@ -17,7 +18,9 @@ class UserName(BaseValueObject[str]):
 class Password(BaseValueObject[str | bytes]):
     def validate(self):
         if not self.value:
-            raise EmptyUserNameException()
+            raise EmptyPasswordNameException
+        if len(self.value) < 6:
+            raise PasswordToShortException
 
     def as_generic_type(self):
         return self.value

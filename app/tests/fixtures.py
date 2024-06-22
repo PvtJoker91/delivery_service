@@ -1,39 +1,37 @@
-from asyncio import current_task
-from contextlib import asynccontextmanager
+from logging import Logger, getLogger
+
 from punq import Container
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, async_scoped_session
-from sqlalchemy.orm import declarative_base
 
 from app.di import _initialize_container
-from app.settings.config import settings
-
-test_engine = create_async_engine(
-    url=f'mysql+aiomysql://test_user:test_password@{settings.db.mysql_host}:{settings.db.mysql_port}/test_db',
-    echo=False,
-)
-test_session_factory = async_sessionmaker(
-    bind=test_engine,
-    autoflush=False,
-    autocommit=False,
-    expire_on_commit=False,
-)
-
-
-@asynccontextmanager
-async def init_async_test_session():
-    Base = declarative_base()
-    Base.metadata.create_all(test_engine)
-    session = async_scoped_session(
-        session_factory=test_session_factory,
-        scopefunc=current_task,
-    )
-    yield session
-    Base.metadata.drop_all(test_engine)
+from app.infra.repositories.packages.base import BasePackageRepository
+from app.infra.repositories.packages.memory import MemoryPackageRepository
+from app.infra.repositories.users.base import BaseUserRepository
+from app.infra.repositories.users.memory import MemoryUserRepository
+from app.logic.services.packages.base import BasePackageService
+from app.logic.services.packages.orm import ORMPackageService
+from app.logic.services.users.base import BaseUserService
+from app.logic.services.users.orm import ORMUserService
 
 
 def init_dummy_container() -> Container:
     container = _initialize_container()
 
-    container.register(AsyncSession, factory=init_async_test_session)
+    container.register(Logger, factory=getLogger)
+
+    container.register(MemoryUserRepository)
+    container.register(MemoryPackageRepository)
+    container.register(BaseUserRepository, MemoryUserRepository)
+    container.register(BasePackageRepository, MemoryPackageRepository)
+
+    def init_memory_user_service():
+        repository: BaseUserRepository = container.resolve(MemoryUserRepository)
+        return ORMUserService(repository=repository)
+
+    def init_memory_task_service():
+        repository: BasePackageRepository = container.resolve(MemoryPackageRepository)
+        return ORMPackageService(repository=repository)
+
+    container.register(BaseUserService, factory=init_memory_user_service)
+    container.register(BasePackageService, factory=init_memory_task_service)
 
     return container

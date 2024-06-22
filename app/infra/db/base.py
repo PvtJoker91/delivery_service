@@ -1,10 +1,11 @@
+from datetime import datetime
 
-from datetime import datetime, timezone
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr, declarative_base
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
+Base = declarative_base()
 
 
-class TimedBaseModel(DeclarativeBase):
+class TimedBaseModel(Base):
     __abstract__ = True
 
     @declared_attr.directive

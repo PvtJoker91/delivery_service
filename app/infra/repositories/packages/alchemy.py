@@ -8,12 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.domain.entities.packages import PackageFilter
-from app.domain.exceptions.packages import (PackageTypeNotFoundException,
-                                            PackageNotFoundException,
-                                            PackageTypeAlreadyExistsException)
-from app.domain.exceptions.users import UserNotFoundException
+from app.infra.exceptions.packages import PackageNotFoundException, PackageTypeAlreadyExistsException, \
+    PackageTypeNotFoundException
+from app.infra.exceptions.users import UserNotFoundException
 from app.infra.db.packages import PackageType, Package
-from app.infra.db.session import init_async_session
 from app.infra.db.users import User
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.packages.converters import convert_package_type_entity_to_model

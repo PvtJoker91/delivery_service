@@ -1,18 +1,21 @@
-import datetime
-
 import pytest
 
-from src.apps.tasks.entities import TaskEntity
+from app.api.v1.packages.schemas import RegisterPackageSchema, PackageTypeCreateSchema
 
 
-@pytest.fixture()
-def new_task():
-    return TaskEntity(
-        id=1,
-        title="New test task",
-        description="Test description",
-        author_id=1,
-        assignee_ids=[1],
-        created_at="10-01-2022"
+@pytest.fixture
+def new_package():
+    return RegisterPackageSchema(
+        title='Test Package',
+        weight=100.19,
+        price=200.5,
+        type_id=1,
+        owner_id=1,
+    )
 
+
+@pytest.fixture
+def new_pac_type():
+    return PackageTypeCreateSchema(
+        name='TestType'
     )

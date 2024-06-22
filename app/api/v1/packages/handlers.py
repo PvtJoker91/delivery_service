@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 from punq import Container
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.filters import PaginationIn, PaginationOut
 from app.api.schemas import ListPaginatedResponse
@@ -18,8 +17,6 @@ from app.api.v1.users.schemas import UserSchema
 from app.di import get_container
 from app.domain.entities.packages import PackageFilter as PackageFilterEntity
 from app.domain.exceptions.base import ApplicationException
-from app.infra.db.session import init_async_session
-from app.infra.repositories.packages.alchemy import SQLAlchemyPackageRepository
 from app.infra.workers.celery.celery_tasks import calculate_delivery_cost_task
 from app.logic.services.packages.base import BasePackageService
 
@@ -103,19 +100,6 @@ async def package_types(
             detail=exception.message,
         )
     return [PackageTypeSchema.from_entity(p_type) for p_type in p_types]
-
-
-
-
-@router.get('/test_session')
-async def test_session(
-        session: AsyncSession = Depends(init_async_session)
-):
-    raise Exception(session)
-    repository = SQLAlchemyPackageRepository(session)
-    types_list = await repository.get_package_types_list()
-    return types_list
-
 
 
 @router.get(

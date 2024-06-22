@@ -18,19 +18,19 @@ class EmptyUserNameException(ApplicationException):
         return 'Имя/фамилия не может быть пустым'
 
 
+class EmptyPasswordNameException(ApplicationException):
+    @property
+    def message(self):
+        return 'Пароль не может быть пустым'
+
+
+class PasswordToShortException(ApplicationException):
+    @property
+    def message(self):
+        return 'Слишком короткий пароль'
+
+
 class PasswordValidationException(ApplicationException):
     @property
     def message(self):
         return 'Неверное имя пользователя или пароль'
-
-
-class UserAlreadyExistsException(ApplicationException):
-    @property
-    def message(self):
-        return 'Пользователь с таким именем уже существует'
-
-
-class UserNotFoundException(ApplicationException):
-    @property
-    def message(self):
-        return 'Пользователь не существует'

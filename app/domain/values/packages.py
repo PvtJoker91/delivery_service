@@ -12,7 +12,9 @@ from app.domain.values.base import BaseValueObject
 @dataclass(frozen=True)
 class PackagePrice(BaseValueObject[float]):
     def validate(self):
-        if not self.value or self.value < 0:
+        if not isinstance(self.value, float):
+            raise WrongPriceValueException()
+        if self.value < 0:
             raise WrongPriceValueException()
 
     def as_generic_type(self) -> float:
@@ -22,7 +24,9 @@ class PackagePrice(BaseValueObject[float]):
 @dataclass(frozen=True)
 class PackageWeight(BaseValueObject[float]):
     def validate(self):
-        if not self.value or self.value < 0:
+        if not isinstance(self.value, float):
+            raise WrongWeightValueException()
+        if self.value < 0:
             raise WrongWeightValueException()
 
     def as_generic_type(self) -> float:

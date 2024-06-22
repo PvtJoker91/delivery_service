@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.exceptions.users import UserNotFoundException, UserAlreadyExistsException
+from app.infra.exceptions.users import UserAlreadyExistsException, UserNotFoundException
 from app.infra.db.users import User
 from app.infra.repositories.users.base import BaseUserRepository
 

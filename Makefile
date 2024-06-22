@@ -59,4 +59,3 @@ clear:
 .PHONY: migrate
 migrate:
 	${EXEC} ${APP_CONTAINER} alembic upgrade head
-
