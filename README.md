@@ -33,7 +33,7 @@ Project based on FastAPI, SQLAlchemy, MySQL, Docker
 * `make db` - up only storages
 * `make workers` - up redis, workers
 
-### Most Used Django Specific Commands
+### Most Used Specific Commands
 
 * `make migrate` - make migrations to models
 * `make tests` - run all tests
