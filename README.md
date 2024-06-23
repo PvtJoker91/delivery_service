@@ -3,7 +3,11 @@
 
 ### Service for package managing and delivery costs calculating
 
-Project based on FastAPI, SQLAlchemy, MySQL, Docker
+Project based on FastAPI, SQLAlchemy, MySQL, Docker <br/>
+It uses MongoBD and TaskIQ fоr scheduled calculating
+packages delivery cost and adding calculation log as
+document to no-sql database
+
 
 
 ## Requirements
