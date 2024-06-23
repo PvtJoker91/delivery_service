@@ -49,7 +49,7 @@ class Package(TimedBaseModel):
     def __repr__(self):
         return str(self)
 
-    def to_entity(self) -> PackageEntity:
+    def to_detail_entity(self) -> PackageEntity:
         return PackageEntity(
             id=self.id,
             title=Title(self.title),
@@ -60,5 +60,17 @@ class Package(TimedBaseModel):
             owner_id=self.owner_id,
             type=self.type.to_entity(),
             owner=self.owner.to_entity(),
+            created_at=self.created_at,
+        )
+
+    def to_entity(self) -> PackageEntity:
+        return PackageEntity(
+            id=self.id,
+            title=Title(self.title),
+            weight=PackageWeight(self.weight),
+            price=PackagePrice(self.price),
+            delivery_cost=self.delivery_cost,
+            type_id=self.type_id,
+            owner_id=self.owner_id,
             created_at=self.created_at,
         )

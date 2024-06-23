@@ -34,7 +34,7 @@ class PackageFilter:
 @dataclass
 class PackageCalculationLog:
     oid: str = field(
-        default_factory=lambda: str(uuid4),
+        default_factory=lambda: str(uuid4()),
         kw_only=True
     )
     type_id: int
@@ -43,3 +43,11 @@ class PackageCalculationLog:
         default_factory=datetime.today,
         kw_only=True
     )
+
+
+@dataclass
+class DailyCostCalculation:
+    type_id: int
+    date: datetime
+    packages_count: int
+    total_cost: float

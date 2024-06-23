@@ -1,3 +1,4 @@
+from datetime import datetime
 from logging import Logger
 from typing import Iterable
 
@@ -11,14 +12,16 @@ from app.api.filters import PaginationIn, PaginationOut
 from app.api.schemas import ListPaginatedResponse
 from app.api.v1.packages.filters import PackageFilter
 from app.api.v1.packages.schemas import RegisterPackageSchema, RegisterPackageResponseSchema, PackageSchema, \
-    PackageDetailSchema, PackageTypeSchema, PackageTypeCreateSchema
+    PackageDetailSchema, PackageTypeSchema, PackageTypeCreateSchema, DailyCostCalculationSchema
 from app.api.v1.users.dependencies import get_auth_user
 from app.api.v1.users.schemas import UserSchema
 from app.di import get_container
 from app.domain.entities.packages import PackageFilter as PackageFilterEntity
 from app.domain.exceptions.base import ApplicationException
 from app.infra.workers.celery.celery_tasks import calculate_delivery_cost_task
+from app.logic.services.calculation_logs.base import BaseCalculationLogService
 from app.logic.services.packages.base import BasePackageService
+from app.logic.use_cases.packages import CalculateDeliveryCostUseCase
 
 router = APIRouter(prefix="/packages", tags=["Packages"])
 
@@ -104,6 +107,30 @@ async def package_types(
 
 
 @router.get(
+    '/get_daily_calculation',
+    response_model=DailyCostCalculationSchema,
+    description='Эндпоинт выдает список всех типов посылок',
+    status_code=status.HTTP_200_OK
+)
+async def package_types(
+        package_type_id: int,
+        date: datetime,
+        container: Container = Depends(get_container),
+) -> DailyCostCalculationSchema:
+    service: BaseCalculationLogService = container.resolve(BaseCalculationLogService)
+    try:
+        calc_log = await service.get_daily_calculation_log(package_type_id=package_type_id, date=date)
+    except ApplicationException as exception:
+        logger: Logger = container.resolve(Logger)
+        logger.error(msg=exception.message)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exception.message,
+        )
+    return DailyCostCalculationSchema.from_entity(calc_log)
+
+
+@router.get(
     '/{package_id}',
     response_model=PackageDetailSchema,
     description='Эндпоинт выдает детальные данные о посылке по ее ID',
@@ -154,12 +181,15 @@ async def add_package_type(
     description='Эндпоинт принудительно запускает задачу рассчёта стоимости доставки для всех нерассчитанных посылок',
     status_code=status.HTTP_200_OK
 )
-async def calculate_cost() -> JSONResponse:
+async def calculate_cost(container: Container = Depends(get_container),) -> JSONResponse:
+    uc = container.resolve(CalculateDeliveryCostUseCase)
     try:
-        task = calculate_delivery_cost_task.delay()
+        # task = calculate_delivery_cost_task.delay()
+        i = await uc.execute()
     except ApplicationException as exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=exception.message,
         )
-    return JSONResponse(content={'ID задачи': task.id, 'Статус задачи': AsyncResult(task.id).status})
+    return i
+    # return JSONResponse(content={'ID задачи': task.id, 'Статус задачи': AsyncResult(task.id).status})

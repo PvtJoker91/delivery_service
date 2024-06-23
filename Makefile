@@ -20,17 +20,17 @@ mongo:
 ui:
 	${DC} -f ${MONGO_EXPRESS} ${ENV} up --build -d
 
-.PHONY: storages
-storages:
+.PHONY: db
+db:
 	${DC} -f ${STORAGES_FILE} ${ENV} up -d
 
-.PHONY: storages-down
-storages-down:
+.PHONY: db-down
+db-down:
 	${DC} -f ${STORAGES_FILE} down
 
 
-.PHONY: storages-logs
-storages-logs:
+.PHONY: db-logs
+db-logs:
 	${LOGS} ${DB_CONTAINER} -f
 
 .PHONY: app
@@ -39,11 +39,16 @@ app:
 
 .PHONY: all
 all:
-	${DC} -f ${APP_FILE} ${ENV} -f ${STORAGES_FILE} ${ENV} -f ${WORKERS_FILE} ${ENV} up --build -d
+	${DC} -f ${APP_FILE} ${ENV} -f ${STORAGES_FILE} ${ENV} -f ${WORKERS_FILE} ${ENV} -f ${MONGO} ${ENV} -f ${MONGO_EXPRESS} ${ENV} up --build -d
 
 .PHONY: workers
 workers:
 	${DC} -f ${WORKERS_FILE} ${ENV} up --build -d
+
+
+.PHONY: workers-down
+workers-down:
+	${DC} -f ${WORKERS_FILE} down
 
 
 .PHONY: app-logs
@@ -58,9 +63,6 @@ worker-logs:
 down:
 	${DC} -f ${APP_FILE} -f ${STORAGES_FILE} -f ${WORKERS_FILE} down --remove-orphans
 
-.PHONY: db-logs
-db-logs:
-	${DC} -f ${STORAGES_FILE} logs -f
 
 .PHONY: clear
 clear:

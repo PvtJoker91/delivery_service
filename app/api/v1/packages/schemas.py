@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from app.api.v1.users.schemas import UserSchema
 from app.domain.constants import NOT_CALCULATED_COST_FIELD
-from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
+from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity, \
+    DailyCostCalculation
 from app.domain.values.packages import Title, PackageWeight, PackagePrice
 
 
@@ -81,3 +84,18 @@ class PackageDetailSchema(BaseModel):
             type=PackageTypeSchema.from_entity(package.type),
         )
 
+
+class DailyCostCalculationSchema(BaseModel):
+    type_id: int
+    date: datetime
+    packages_count: int
+    total_cost: float
+
+    @classmethod
+    def from_entity(cls, log_entyty: DailyCostCalculation) -> 'DailyCostCalculationSchema':
+        return cls(
+            type_id=log_entyty.type_id,
+            date=log_entyty.date,
+            packages_count=log_entyty.packages_count,
+            total_cost=log_entyty.total_cost,
+        )

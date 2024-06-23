@@ -5,7 +5,6 @@ from typing import Iterable
 from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity, \
     PackageCalculationLog
 from app.infra.cache.redis import RedisCacheDB
-from app.infra.repositories.calculation.base import BaseCalculationLogRepository
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.packages import converters
 from app.logic.services.packages.base import BasePackageService
@@ -15,7 +14,6 @@ from app.logic.utils import calculate_cost, get_rub_exchange_rates
 @dataclass
 class ORMPackageService(BasePackageService):
     repository: BasePackageRepository
-    logs_repository: BaseCalculationLogRepository
 
     async def register_package(self, package: PackageEntity) -> PackageEntity:
         """
@@ -27,9 +25,9 @@ class ORMPackageService(BasePackageService):
         """
         dto = converters.convert_package_entity_to_model(package)
         res_dto = await self.repository.add_package(dto)
-        return res_dto.to_entity()
+        return res_dto.to_detail_entity()
 
-    async def calculate_delivery_cost(self) -> int:
+    async def calculate_delivery_cost(self) -> Iterable[PackageEntity]:
         """
         Рассчитывает стоимость доставки для всех непосчитанных посылок.
         Returns:
@@ -41,10 +39,8 @@ class ORMPackageService(BasePackageService):
         for package in not_calculated:
             delivery_cost = calculate_cost(package.price, package.weight, dollar_rate)
             package.delivery_cost = delivery_cost
-            log = PackageCalculationLog(type_id=package.type_id, value=delivery_cost)
-            await self.logs_repository.add_calculation_log(log)  # Добавляем лог в Mongo
         await self.repository.update_package_list_delivery_cost(not_calculated)
-        return len(list(not_calculated))
+        return [package_dto.to_entity() for package_dto in not_calculated]
 
     async def get_package_list(self, pagination, filters) -> Iterable[PackageEntity]:
         """
@@ -56,7 +52,7 @@ class ORMPackageService(BasePackageService):
             Iterable[PackageEntity]: Список посылок.
         """
         package_dto_list = await self.repository.get_package_list(pagination, filters)
-        return [package_dto.to_entity() for package_dto in package_dto_list]
+        return [package_dto.to_detail_entity() for package_dto in package_dto_list]
 
     async def get_package_count(self, filters) -> int:
         """
@@ -77,7 +73,7 @@ class ORMPackageService(BasePackageService):
             PackageEntity: Найденная посылка.
         """
         dto = await self.repository.get_package(package_id)
-        return dto.to_entity()
+        return dto.to_detail_entity()
 
     async def get_package_types_list(self) -> Iterable[PackageTypeEntity]:
         """

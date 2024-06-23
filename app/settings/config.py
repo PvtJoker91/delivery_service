@@ -28,8 +28,15 @@ class DbSettings(CustomSettings):
 
 
 class MongoSettings(CustomSettings):
-    mongodb_connection_uri: str
-    mongodb_calculation_log_database: str
+    mongo_initdb_root_username: str
+    mongo_initdb_root_password: str
+    mongo_initdb_database: str
+    calculation_logs_collection_name: str
+
+    @property
+    def mongodb_connection_url(self):
+        url = f'mongodb://{self.mongo_initdb_root_username}:{self.mongo_initdb_root_password}@mongodb:27017/'
+        return url
 
 
 class RedisSettings(CustomSettings):

@@ -1,6 +1,6 @@
 import punq
 from celery import Celery
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.core import AgnosticClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from functools import lru_cache
@@ -16,10 +16,13 @@ from app.infra.repositories.users.alchemy import SQLAlchemyUserRepository
 from app.infra.repositories.users.base import BaseUserRepository
 from app.infra.workers.celery.main import init_worker
 from app.logging.factory import logger_factory
+from app.logic.services.calculation_logs.base import BaseCalculationLogService
+from app.logic.services.calculation_logs.mongo import MongoCalculationLogService
 from app.logic.services.packages.base import BasePackageService
 from app.logic.services.packages.orm import ORMPackageService
 from app.logic.services.users.base import BaseUserService
 from app.logic.services.users.orm import ORMUserService
+from app.logic.use_cases.packages import CalculateDeliveryCostUseCase
 
 
 @lru_cache(1)
@@ -40,7 +43,7 @@ def _initialize_container() -> punq.Container:
     container.register(Celery, factory=init_worker)
 
     # init mongo
-    container.register(AsyncIOMotorClient, factory=init_mongodb_client)
+    container.register(AgnosticClient, factory=init_mongodb_client)
 
     # init repos
     container.register(BaseUserRepository)
@@ -50,17 +53,25 @@ def _initialize_container() -> punq.Container:
     container.register(BaseCalculationLogRepository)
     container.register(MongoCalculationLogRepository)
 
-    # initialize services
+    # init services
     def init_sqlalchemy_user_service():
         repository: BaseUserRepository = container.resolve(SQLAlchemyUserRepository)
         return ORMUserService(repository=repository)
 
     def init_sqlalchemy_package_service():
         repository: BasePackageRepository = container.resolve(SQLAlchemyPackageRepository)
-        logs_repository: BaseCalculationLogRepository = container.resolve(MongoCalculationLogRepository)
-        return ORMPackageService(repository=repository, logs_repository=logs_repository)
+        return ORMPackageService(repository=repository)
+
+    def init_mongo_calculation_logs_service():
+        repository: BaseCalculationLogRepository = container.resolve(MongoCalculationLogRepository)
+        return MongoCalculationLogService(repository=repository)
 
     container.register(BaseUserService, factory=init_sqlalchemy_user_service)
     container.register(BasePackageService, factory=init_sqlalchemy_package_service)
+    container.register(BaseCalculationLogService, factory=init_mongo_calculation_logs_service)
+
+    # init services
+
+    container.register(CalculateDeliveryCostUseCase)
 
     return container

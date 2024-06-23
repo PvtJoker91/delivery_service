@@ -11,7 +11,7 @@ class BasePackageService(ABC):
         ...
 
     @abstractmethod
-    async def calculate_delivery_cost(self) -> int:
+    async def calculate_delivery_cost(self) -> Iterable[PackageEntity]:
         ...
 
     @abstractmethod
