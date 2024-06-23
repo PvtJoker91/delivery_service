@@ -31,7 +31,7 @@ Project based on FastAPI, SQLAlchemy, MySQL, Docker
 * `make app-logs` - follow the logs in app container
 * `make down` - down application and all infrastructure
 * `make db` - up only storages
-* `make workers` - up redis, celery
+* `make workers` - up redis, workers
 
 ### Most Used Django Specific Commands
 
