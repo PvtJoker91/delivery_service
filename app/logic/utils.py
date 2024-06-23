@@ -4,15 +4,15 @@ import pickle
 
 from app.domain.exceptions.users import PasswordValidationException
 from app.domain.constants import CACHE_EXCHANGE_NAME, EXCHANGE_URL
-from app.infra.cache.base import BaseCacheDB
+from app.infra.cache.base import BaseCacheStorage
 from app.infra.exceptions.http import HTTPRequestException
 
 
-async def get_rub_exchange_rates(cache_db: BaseCacheDB):
+async def get_rub_exchange_rates(cache_db: BaseCacheStorage):
     """
     Получает курс обмена рубля из кэша или удаленного API.
     Args:
-        cache_db (BaseCacheDB): Объект базы данных для кэширования данных.
+        cache_db (BaseCacheStorage): Объект базы данных для кэширования данных.
     Returns:
         dict: Данные курса обмена рубля.
     Raises:
@@ -25,8 +25,9 @@ async def get_rub_exchange_rates(cache_db: BaseCacheDB):
         try:
             async with httpx.AsyncClient() as client:
                 res = await client.get(EXCHANGE_URL)
-        except httpx.HTTPError:
-            raise HTTPRequestException(url=EXCHANGE_URL)
+        except httpx.HTTPError as e:
+            raise e
+            # raise HTTPRequestException(url=EXCHANGE_URL)
         data = res.json()
         data_bytes = pickle.dumps(data)
         await cache_db.set_data(CACHE_EXCHANGE_NAME, data_bytes, 3600)

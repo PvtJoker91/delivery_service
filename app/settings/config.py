@@ -50,10 +50,22 @@ class RedisSettings(CustomSettings):
         return f"redis://{self.redis_host}:{self.redis_port}/{self.cache_db}"
 
 
+class RabbitMQSettings(CustomSettings):
+    rabbitmq_default_user: str
+    rabbitmq_default_pass: str
+    rabbit_host: str
+    rabbit_port: int
+
+    @property
+    def broker_url(self):
+        return f"amqp://{self.rabbitmq_default_user}:{self.rabbitmq_default_pass}@{self.rabbit_host}:{self.rabbit_port}"
+
+
 class Settings(CustomSettings):
     db: DbSettings = DbSettings()
     mongo: MongoSettings = MongoSettings()
     redis: RedisSettings = RedisSettings()
+    rabbit: RabbitMQSettings = RabbitMQSettings()
 
 
 settings = Settings()

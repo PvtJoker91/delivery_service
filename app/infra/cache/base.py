@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BaseCacheDB(ABC):
+class BaseCacheStorage(ABC):
     @abstractmethod
     async def set_data(self, key, data, expiration):
         ...

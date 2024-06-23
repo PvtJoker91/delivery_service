@@ -2,7 +2,6 @@ from datetime import datetime
 from logging import Logger
 from typing import Iterable
 
-from celery.result import AsyncResult
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
@@ -18,10 +17,9 @@ from app.api.v1.users.schemas import UserSchema
 from app.di import get_container
 from app.domain.entities.packages import PackageFilter as PackageFilterEntity
 from app.domain.exceptions.base import ApplicationException
-from app.infra.workers.celery.celery_tasks import calculate_delivery_cost_task
+from app.infra.queues.taskiq.tasks import calculate_delivery_cost_task
 from app.logic.services.calculation_logs.base import BaseCalculationLogService
 from app.logic.services.packages.base import BasePackageService
-from app.logic.use_cases.packages import CalculateDeliveryCostUseCase
 
 router = APIRouter(prefix="/packages", tags=["Packages"])
 
@@ -181,15 +179,12 @@ async def add_package_type(
     description='Эндпоинт принудительно запускает задачу рассчёта стоимости доставки для всех нерассчитанных посылок',
     status_code=status.HTTP_200_OK
 )
-async def calculate_cost(container: Container = Depends(get_container),) -> JSONResponse:
-    uc = container.resolve(CalculateDeliveryCostUseCase)
+async def calculate_cost() -> JSONResponse:
     try:
-        # task = calculate_delivery_cost_task.delay()
-        i = await uc.execute()
+        task = await calculate_delivery_cost_task.kiq(1) # noqa
     except ApplicationException as exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=exception.message,
         )
-    return i
-    # return JSONResponse(content={'ID задачи': task.id, 'Статус задачи': AsyncResult(task.id).status})
+    return JSONResponse(content={'status': 'ok', 'ID задачи': task.task_id})

@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from redis.asyncio.client import Redis
 
-from app.infra.cache.base import BaseCacheDB
+from app.infra.cache.base import BaseCacheStorage
 from app.settings.config import settings
 
 
 @dataclass
-class RedisCacheDB(BaseCacheDB):
+class RedisCacheStorage(BaseCacheStorage):
     client: Redis = Redis()
     db_url: str = settings.redis.cache_url
 

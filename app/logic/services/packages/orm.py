@@ -1,10 +1,8 @@
-import datetime
 from dataclasses import dataclass
 from typing import Iterable
 
-from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity, \
-    PackageCalculationLog
-from app.infra.cache.redis import RedisCacheDB
+from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
+from app.infra.cache.base import BaseCacheStorage
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.packages import converters
 from app.logic.services.packages.base import BasePackageService
@@ -14,6 +12,7 @@ from app.logic.utils import calculate_cost, get_rub_exchange_rates
 @dataclass
 class ORMPackageService(BasePackageService):
     repository: BasePackageRepository
+    cache: BaseCacheStorage
 
     async def register_package(self, package: PackageEntity) -> PackageEntity:
         """
@@ -33,7 +32,7 @@ class ORMPackageService(BasePackageService):
         Returns:
             int: Количество посылок, для которых была рассчитана стоимость доставки.
         """
-        exchange_rates = await get_rub_exchange_rates(RedisCacheDB())
+        exchange_rates = await get_rub_exchange_rates(self.cache)
         dollar_rate = exchange_rates['Valute']['USD']['Value']
         not_calculated = await self.repository.get_not_calculated_package_list()
         for package in not_calculated:

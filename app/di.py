@@ -1,11 +1,12 @@
 import punq
-from celery import Celery
 from motor.core import AgnosticClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from functools import lru_cache
 from logging import Logger
 
+from app.infra.cache.base import BaseCacheStorage
+from app.infra.cache.redis import RedisCacheStorage
 from app.infra.db.mongo_client import init_mongodb_client
 from app.infra.db.session import init_async_session
 from app.infra.repositories.calculation.base import BaseCalculationLogRepository
@@ -14,7 +15,6 @@ from app.infra.repositories.packages.alchemy import SQLAlchemyPackageRepository
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.users.alchemy import SQLAlchemyUserRepository
 from app.infra.repositories.users.base import BaseUserRepository
-from app.infra.workers.celery.main import init_worker
 from app.logging.factory import logger_factory
 from app.logic.services.calculation_logs.base import BaseCalculationLogService
 from app.logic.services.calculation_logs.mongo import MongoCalculationLogService
@@ -39,9 +39,6 @@ def _initialize_container() -> punq.Container:
     # init session
     container.register(AsyncSession, factory=init_async_session)
 
-    # init worker
-    container.register(Celery, factory=init_worker)
-
     # init mongo
     container.register(AgnosticClient, factory=init_mongodb_client)
 
@@ -52,6 +49,8 @@ def _initialize_container() -> punq.Container:
     container.register(SQLAlchemyPackageRepository)
     container.register(BaseCalculationLogRepository)
     container.register(MongoCalculationLogRepository)
+    container.register(BaseCacheStorage)
+    container.register(RedisCacheStorage)
 
     # init services
     def init_sqlalchemy_user_service():
@@ -60,7 +59,8 @@ def _initialize_container() -> punq.Container:
 
     def init_sqlalchemy_package_service():
         repository: BasePackageRepository = container.resolve(SQLAlchemyPackageRepository)
-        return ORMPackageService(repository=repository)
+        cache: BaseCacheStorage = container.resolve(RedisCacheStorage)
+        return ORMPackageService(repository=repository, cache=cache)
 
     def init_mongo_calculation_logs_service():
         repository: BaseCalculationLogRepository = container.resolve(MongoCalculationLogRepository)

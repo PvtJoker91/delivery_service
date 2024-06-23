@@ -9,58 +9,31 @@ services:
     volumes:
       - redis_data:/data
 
-
-  celery-worker:
+  worker:
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: celery-worker
+    container_name: worker
     env_file:
       - ../.env
-    environment:
-      - CELERY_BROKER_URL=${BROKER_URL}
     depends_on:
       - redis
     volumes:
       - ..:/app/
-    command: celery -A app.infra.workers.celery.main.celery_app worker --loglevel=info
+    command: taskiq worker -r app.infra.queues.taskiq.broker:broker app.infra.queues.taskiq.tasks
 
-
-  celery-beat:
+  scheduler:
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: celery-beat
+    container_name: scheduler
     env_file:
       - ../.env
-    environment:
-      - CELERY_BROKER_URL=${BROKER_URL}
     depends_on:
       - redis
-      - celery-worker
     volumes:
       - ..:/app/
-      - ../logs:/logs
-    command: celery -A app.infra.workers.celery.main.celery_app beat --loglevel=info --logfile=/logs/celery_beat.log
-
-
-
-  flower:
-    image: "mher/flower:latest"
-    container_name: flower
-    ports:
-      - "5555:5555"
-    depends_on:
-      - celery-worker
-    env_file:
-      - ../.env
-    environment:
-      - CELERY_BROKER_URL=${BROKER_URL}
-      - FLOWER_PORT=5555
-
-
+    command: taskiq scheduler app.infra.queues.taskiq.broker:scheduler app.infra.queues.taskiq.tasks
 
 volumes:
   redis_data:
-  celery_logs:
-    driver: local
