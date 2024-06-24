@@ -3,6 +3,7 @@ from logging import Logger, getLogger
 from punq import Container
 
 from app.di import _initialize_container
+from app.infra.cache.redis import RedisCacheStorage
 from app.infra.repositories.packages.base import BasePackageRepository
 from app.infra.repositories.packages.memory import MemoryPackageRepository
 from app.infra.repositories.users.base import BaseUserRepository
@@ -29,7 +30,8 @@ def init_dummy_container() -> Container:
 
     def init_memory_task_service():
         repository: BasePackageRepository = container.resolve(MemoryPackageRepository)
-        return ORMPackageService(repository=repository)
+        cache: RedisCacheStorage = container.resolve(RedisCacheStorage)
+        return ORMPackageService(repository=repository, cache=cache)
 
     container.register(BaseUserService, factory=init_memory_user_service)
     container.register(BasePackageService, factory=init_memory_task_service)

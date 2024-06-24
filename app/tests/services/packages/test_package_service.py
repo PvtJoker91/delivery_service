@@ -1,12 +1,13 @@
 import pytest
 
 from app.domain.entities.packages import Package as PackageEntity, PackageType as PackageTypeEntity
+from app.infra.cache.redis import RedisCacheStorage
 from app.infra.exceptions.packages import PackageTypeAlreadyExistsException
 from app.infra.repositories.packages.memory import MemoryPackageRepository
 
 from app.logic.services.packages.orm import ORMPackageService
 
-service = ORMPackageService(MemoryPackageRepository())
+service = ORMPackageService(MemoryPackageRepository(), RedisCacheStorage())
 
 
 @pytest.mark.asyncio
