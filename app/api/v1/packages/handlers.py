@@ -17,7 +17,7 @@ from app.api.v1.users.schemas import UserSchema
 from app.di import get_container
 from app.domain.entities.packages import PackageFilter as PackageFilterEntity
 from app.domain.exceptions.base import ApplicationException
-from app.infra.queues.taskiq.tasks import calculate_delivery_cost_task
+from app.logic.tasks import calculate_delivery_cost_task
 from app.logic.services.calculation_logs.base import BaseCalculationLogService
 from app.logic.services.packages.base import BasePackageService
 
@@ -25,12 +25,12 @@ router = APIRouter(prefix="/packages", tags=["Packages"])
 
 
 @router.post(
-    '/register',
+    '/',
     response_model=RegisterPackageResponseSchema,
     description='Эндпоинт регистрирует новую посылку без рассчета стоимости доставки',
     status_code=status.HTTP_201_CREATED
 )
-async def register_package(
+async def add_new_package(
         package_in: RegisterPackageSchema,
         user: UserSchema = Depends(get_auth_user),
         container: Container = Depends(get_container),
@@ -55,7 +55,7 @@ async def register_package(
     description='Эндпоинт выдает список посылок текущего пользователя с фильтрацией и пагинацией',
     status_code=status.HTTP_201_CREATED
 )
-async def my_packages(
+async def get_my_packages(
         user: UserSchema = Depends(get_auth_user),
         pagination_in: PaginationIn = Depends(),
         filters: PackageFilter = Depends(),
@@ -88,7 +88,7 @@ async def my_packages(
     description='Эндпоинт выдает список всех типов посылок',
     status_code=status.HTTP_200_OK
 )
-async def package_types(
+async def get_package_type_list(
         container: Container = Depends(get_container),
 ) -> list[PackageTypeSchema]:
     service: BasePackageService = container.resolve(BasePackageService)
@@ -105,12 +105,12 @@ async def package_types(
 
 
 @router.get(
-    '/get_daily_calculation',
+    '/daily_calculation',
     response_model=DailyCostCalculationSchema,
-    description='Эндпоинт выдает список всех типов посылок',
+    description='Эндпоинт выдает суммарную стоимость доставки всех посылок с фильтром по дате и типу посылки',
     status_code=status.HTTP_200_OK
 )
-async def package_types(
+async def get_daily_delivery_cost_calculation(
         package_type_id: int,
         date: datetime,
         container: Container = Depends(get_container),
@@ -134,7 +134,7 @@ async def package_types(
     description='Эндпоинт выдает детальные данные о посылке по ее ID',
     status_code=status.HTTP_200_OK
 )
-async def package_detail(
+async def get_package_detail(
         package_id: int,
         container: Container = Depends(get_container),
 ) -> PackageDetailSchema:

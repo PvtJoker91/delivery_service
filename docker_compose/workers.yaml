@@ -20,7 +20,7 @@ services:
       - redis
     volumes:
       - ..:/app/
-    command: taskiq worker -r app.infra.queues.taskiq.broker:broker app.infra.queues.taskiq.tasks
+    command: taskiq worker -r app.infra.queues.taskiq.broker:broker app.logic.tasks
 
   scheduler:
     build:
@@ -33,7 +33,7 @@ services:
       - redis
     volumes:
       - ..:/app/
-    command: taskiq scheduler app.infra.queues.taskiq.broker:scheduler app.infra.queues.taskiq.tasks
+    command: taskiq scheduler app.infra.queues.taskiq.broker:scheduler app.logic.tasks
 
 volumes:
   redis_data:
